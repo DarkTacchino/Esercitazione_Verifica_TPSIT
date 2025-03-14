@@ -2,21 +2,23 @@ package com.example.esercitazione;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
-
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView numView, numView1, numView2;
+    private ScrollView scrollView; // Dichiarazione della variabile, inizializzazione rimossa
     private TextView infoTextView;
     private CardView infoCardView;
+    private List<String> history = new ArrayList<>(); // Lista per la cronologia
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
         numView2 = findViewById(R.id.numView2);
         infoTextView = findViewById(R.id.infoTextView);
         infoCardView = findViewById(R.id.infoCardView);
+
+        // Inizializza scrollView dopo setContentView
+        scrollView = findViewById(R.id.scrollView);
     }
 
     public void addBTN(View view) {
@@ -56,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
         if (currentTextView != null) {
             int currentValue = Integer.parseInt(currentTextView.getText().toString());
             currentValue += increment;
+
+            // Impedisci valori negativi
+            if (currentValue < 0) {
+                currentValue = 0;
+            }
+
             currentTextView.setText(String.valueOf(currentValue));
 
             updateInfoCard(hobby, currentValue);
@@ -67,9 +78,15 @@ public class MainActivity extends AppCompatActivity {
         String currentDateAndTime = sdf.format(new Date());
 
         String infoText = hobby + ": " + value + "\nData e Ora: " + currentDateAndTime;
-        infoTextView.setText(infoText);
-    }
+        history.add(infoText); // Aggiungi alla cronologia
 
-    public void textNum(View view) {
+        // Aggiorna la CardView con tutta la cronologia
+        StringBuilder historyBuilder = new StringBuilder();
+        for (String item : history) {
+            historyBuilder.append(item).append("\n\n");
+        }
+        infoTextView.setText(historyBuilder.toString());
+        // Scorri automaticamente alla fine
+        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN)); // Lambda expression
     }
 }
